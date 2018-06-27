@@ -11,17 +11,59 @@ from __future__ import print_function
 
 import tensorflow as tf
 import pandas
+import csv
+import numpy as np
+from datetime import datetime
 from azureml.logging import get_azureml_logger
+
 
 run_logger = get_azureml_logger()
 
 # Import MNIST data
-from tensorflow.examples.tutorials.mnist import input_data
-mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+# from tensorflow.examples.tutorials.mnist import input_data
+# mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+
+filename = "C:\\Users\\emjorgen\\Desktop\\Demo-material\\kaggle\\kickstarter-projects\\ks-projects-201801.csv"
+
+with open("C:\\Users\\emjorgen\\Desktop\\Demo-material\\kaggle\\kickstarter-projects\\ks-projects-201801.csv", "r") as f:
+    tmp = csv.reader(f)
+    ks = list(tmp)
+print(ks)
+
+ks = pandas.read_csv(filename, delimiter=",")
+ks.iloc[:5,:]
+ks_list = [list(x) for x in ks.values]
+ks_list[:2]
+ks.columns.values
+len(ks["category"].unique())
+
+def encode(series):
+    return pandas.get_dummies(series.astype(str))
+
+train_x = pandas.get_dummies(ks["category"])
+train_x["country"] = encode(ks["country"])
+ks["deadline_dt"] = pandas.to_datetime(ks["deadline"])
+ks["launched_dt"] = pandas.to_datetime(ks["launched"])
+ks["timediff"] = pandas.date_range(ks["deadline_dt"], ks["launched_dt"], freq = "d")
+
+
+datemask = "%Y-%m-%d"
+series1 = ks.deadline
+def datediff(series1, series2, datemask = datemask):
+    date1 = [datetime.strptime(s, datemask) for s in series1.values]
+    date2 = [datetime.strptime(s, datemask) for s in series1.values]
+    diff = date1 - date2
+    return pandas.Series(diff)
+
+datetime.strptime(series1.values[0]
+
+datetime(ks["deadline"].head().values, datemask) - datetime(ks["launched"].head())
+
+
 
 # Parameters
-learning_rate = 0.001
-training_iters = 200000
+learning_rate = 0.01
+training_iters = 1000
 batch_size = 128
 display_step = 10
 
